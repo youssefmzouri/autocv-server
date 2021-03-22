@@ -1,14 +1,13 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const server = express();
-// const env = require('./environment/env-manager').environment();
+const env = require('./environment/env-manager').environment();
 
 // usar middlewares
-server.use(bodyParser.json());
-server.use(bodyParser.urlencoded({extended: false}));
+server.use(express.json());
+server.use(express.urlencoded({extended: false}));
 
-server.listen(3000, () => {
-    console.log('HOLA, estoy funcionando');
+server.listen(env.SERVER_PORT, () => {
+    console.log('HOLA, estoy funcionando, port: ', env.SERVER_PORT);
 });
 
 server.get('/user/signin/github/callback', (req, res, next) => {
