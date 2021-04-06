@@ -11,7 +11,40 @@ server.listen(env.SERVER_PORT, () => {
     console.log('Up and running with port', env.SERVER_PORT);
 });
 
-server.get('/user/signin/github/callback', (req, res, next) => {
+/**
+ * Des de el front harán click al boton de iniciar sesion con linkedin.
+ * Esta logica se encarga linkedin, lo que debemos hacer es actuar como "redirect_uri" con este endpoint.
+ * en la url recibiremos el "code" y el "state".
+ */
+server.get('/user/signin/linkedin/callback', (req, res) => {
+    const {query} = req;
+    const {code} = query;
+
+    if (!code) {
+        return res.send({
+            success: false,
+            message: 'Error: no code'
+        });
+    }
+
+    const redirect_uri = encodeURIComponent('http://localhost:5000/user/signin/linkedin/callback');
+    const options = {
+        'method': 'POST',
+        'url': `https://www.linkedin.com/oauth/v2/accessToken?grant_type=authorization_code&code=${code}&redirect_uri=${redirect_uri}&client_id=${env.LINKEDIN_CLIENT_ID}&client_secret=${env.LINKEDIN_CLIENT_SECRET}`,
+        'headers': {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    };
+    request(options, (error, response) => {
+        if (error) console.log('Error getting linkedin access token ... ');
+        const body = JSON.parse(response.body);
+        const access_token = body.access_token;
+        // const expires_in = body.expires_in;
+        console.log('Linkedin access_token: ', access_token);
+    });
+});
+
+server.get('/user/signin/github/callback', (req, res) => {
     const {query} = req;
     const {code} = query;
 
