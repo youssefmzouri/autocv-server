@@ -1,14 +1,33 @@
+require('dotenv').config({path: `./env/${process.env.ENVIRONMENT}/.env`});
+require('./mongo');
+
 const express = require('express');
 const request = require('request');
 const server = express();
-const env = require('./environment/env-manager').environment();
+
+const port = process.env.SERVER_PORT;
+const mongoose = require('mongoose')
+const User = require('./models/User');
+
 
 // usar middlewares
 server.use(express.json());
 server.use(express.urlencoded({extended: false}));
 
-server.listen(env.SERVER_PORT, () => {
-    console.log('Up and running with port', env.SERVER_PORT);
+server.listen(port, () => {
+    console.log('Up and running with port', port);
+});
+
+server.get('/api/user', (req, res) => {
+    console.log(`GET /api/user`);
+    User.find({})
+        .then(result => {
+            mongoose.connection.close();
+            res.status(200).send(result);
+        })
+        .catch(error => {
+            console.error(`ERROR GET /api/user`, error);
+        })
 });
 
 server.get('/user/signin/github/callback', (req, res, next) => {
@@ -29,8 +48,8 @@ server.get('/user/signin/github/callback', (req, res, next) => {
             'Accept': 'application/json'
         },
         formData: {
-            'client_id': env.GIT_CLIENT_ID,
-            'client_secret': env.GIT_CLIENT_SECRET,
+            'client_id': process.env.GIT_CLIENT_ID,
+            'client_secret': process.env.GIT_CLIENT_SECRET,
             'code': code
         }
     };
