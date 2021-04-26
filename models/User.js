@@ -6,16 +6,20 @@ const userSchema = new Schema({
     fullName: String,
     createdAt: Date
 });
+const User = model('User', userSchema);
 
+/**
+ * Modifies the paremeters of result that return the mondoDB server
+ * To be equal with the model defined here in the source code.
+ * Thats beacuse we override the function toJSON.transform()
+ */
 userSchema.set('toJSON', {
     transform: (_, returnedObject) => {
         returnedObject.id = returnedObject._id;
         delete returnedObject._id;
         delete returnedObject.__v
     }
-})
-
-const User = model('User', userSchema)
+});
 
 module.exports = User;
 

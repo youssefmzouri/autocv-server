@@ -18,7 +18,7 @@ server.listen(port, () => {
     console.log('Up and running with port', port);
 });
 
-server.get('/api/user', (req, res) => {
+server.get('/api/user', (_, res) => {
     console.log(`GET /api/user`);
     User.find({})
         .then(result => {
@@ -30,7 +30,43 @@ server.get('/api/user', (req, res) => {
         })
 });
 
-server.get('/user/signin/github/callback', (req, res, next) => {
+server.get('/api/user/:id', (req, res, next) => {
+    console.log(`GET /api/user/:id`);
+    const {id} = req.params;
+    User.findById(id).then(user => {
+        if (user) {
+            return res.json(user);
+        } else {
+            res.status(404).end();
+        }
+    }).catch(err => {
+        next(err)
+    });
+});
+
+server.post('/api/user', (req, res) => {
+    console.log(`POST /api/user`);
+    const user = req.body;
+    
+    if(!user.email) {
+        return res.status(400).json({
+            error: 'required "email" field is missing'
+        });
+    }
+
+    const newUser = new User({
+        email: user.email, 
+        password: user.password, 
+        fullName: user.fullName,
+        createdAt: new Date().toISOString()
+    });
+
+    newUser.save().then(savedUser => {
+        res.json(savedUser);
+    });
+});
+
+server.get('/user/signin/github/callback', (req, res, _) => {
     const {query} = req;
     const {code} = query;
 
@@ -57,6 +93,17 @@ server.get('/user/signin/github/callback', (req, res, next) => {
         if (error) console.log('Error getting access token ... ');
         console.log('Access token: ', response.body);
     });
+});
+
+server.use((error, _, response, __) => {
+    console.error(error);
+    if (error.name === 'CastError') {
+        response.status(400).end({
+            error: 'id used is malformed'
+        });
+    } else {
+        response.status(500).end();
+    }
 });
 
 // server.get('/api/user', (req, res) => {
