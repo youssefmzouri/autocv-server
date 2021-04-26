@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ENVIRONMENT=dev nodemon index.js",
+    "dev_win": "set ENVIRONMENT=dev&& nodemon index.js",
     "prod": "ENVIRONMENT=prod node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
