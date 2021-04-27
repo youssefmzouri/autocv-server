@@ -4,25 +4,21 @@ require('./mongo');
 const express = require('express');
 const request = require('request');
 const server = express();
+const cors = require('cors');
+const port = process.env.PORT || 5000;
+const notFound = require('./middleware/notFound');
+const handleErrors = require('./middleware/handleErrors');
 
-const port = process.env.SERVER_PORT;
-const mongoose = require('mongoose')
 const User = require('./models/User');
 
-
-// usar middlewares
+// use middlewares
+server.use(cors());
 server.use(express.json());
-server.use(express.urlencoded({extended: false}));
-
-server.listen(port, () => {
-    console.log('Up and running with port', port);
-});
 
 server.get('/api/user', (_, res) => {
     console.log(`GET /api/user`);
     User.find({})
         .then(result => {
-            mongoose.connection.close();
             res.status(200).send(result);
         })
         .catch(error => {
@@ -44,7 +40,7 @@ server.get('/api/user/:id', (req, res, next) => {
     });
 });
 
-server.post('/api/user', (req, res) => {
+server.post('/api/user', (req, res, next) => {
     console.log(`POST /api/user`);
     const user = req.body;
     
@@ -63,7 +59,33 @@ server.post('/api/user', (req, res) => {
 
     newUser.save().then(savedUser => {
         res.json(savedUser);
+    }).catch(error => next(error));
+});
+
+server.put('/api/user/:id', (req, res, next) => {
+    console.log(`PUT /api/user/:id`);
+    const {id} = req.params;
+    const user = req.body;
+    
+    const newUserInfo = {
+        fullName: user.fullName
+    };
+
+    User.findByIdAndUpdate(id, newUserInfo, {new: true})
+        .then(savedUser => {
+            res.json(savedUser);
+        });
+});
+
+server.delete('/api/user/:id', (req, res, next) => {
+    console.log(`Delete /api/user/:id`);
+    const {id} = req.params;
+    User.findByIdAndRemove(id).then(_ => {
+        res.status(204).end();
+    }).catch(err => {
+        next(err)
     });
+    res.status(204).end();
 });
 
 server.get('/user/signin/github/callback', (req, res, _) => {
@@ -95,39 +117,9 @@ server.get('/user/signin/github/callback', (req, res, _) => {
     });
 });
 
-server.use((error, _, response, __) => {
-    console.error(error);
-    if (error.name === 'CastError') {
-        response.status(400).end({
-            error: 'id used is malformed'
-        });
-    } else {
-        response.status(500).end();
-    }
+server.use(notFound);
+server.use(handleErrors);
+
+server.listen(port, () => {
+    console.log('Up and running with port', port);
 });
-
-// server.get('/api/user', (req, res) => {
-//     res.status(200).send([{
-//             id: 21,
-//             name: "name",
-//             age: "30",
-//             email: "name@gmail.com"
-//         }]);
-// });
-
-// server.get('/api/user/:id', (req, res) => {
-//     const id = req.params.id;
-//     // DO THE SEARCH 
-//     res.status(200).send({
-//         id: 21,
-//         name: "name",
-//         age: "30",
-//         email: "name@gmail.com"
-//     });
-// });
-
-// server.post('/api/user/', (req, res) => {
-//     const body = req.body;
-//     console.log('Usuario ', body);
-//     res.status(200).send({"message": `Usuario ${body.user.name} creado `});
-// });
