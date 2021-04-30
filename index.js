@@ -5,42 +5,69 @@ const express = require('express');
 const request = require('request');
 const server = express();
 const cors = require('cors');
+const Sentry = require('@sentry/node');
+const Tracing = require("@sentry/tracing");
 const port = process.env.PORT || 5000;
-const notFound = require('./middleware/notFound');
-const handleErrors = require('./middleware/handleErrors');
+
 
 const User = require('./models/User');
+const notFound = require('./middleware/notFound');
+const handleErrors = require('./middleware/handleErrors');
 
 // use middlewares
 server.use(cors());
 server.use(express.json());
+server.use('/images', express.static('images'));
 
-server.get('/api/user', (_, res) => {
-    console.log(`GET /api/user`);
-    User.find({})
-        .then(result => {
-            res.status(200).send(result);
-        })
-        .catch(error => {
-            console.error(`ERROR GET /api/user`, error);
-        })
+Sentry.init({
+    dsn: "https://794168c17a5d45479e03e17182e15071@o587451.ingest.sentry.io/5738698",
+    integrations: [
+        // enable HTTP calls tracing
+        new Sentry.Integrations.Http({ tracing: true }),
+        // enable Express.js middleware tracing
+        new Tracing.Integrations.Express({ server }),
+    ],
+
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    // We recommend adjusting this value in production
+    tracesSampleRate: 1.0,
 });
 
-server.get('/api/user/:id', (req, res, next) => {
+// RequestHandler creates a separate execution context using domains, so that every
+// transaction/span/breadcrumb is attached to its own Hub instance
+server.use(Sentry.Handlers.requestHandler());
+// TracingHandler creates a trace for every incoming request
+server.use(Sentry.Handlers.tracingHandler());
+
+server.get('/', (_, res) => {
+    res.send('<h1>Hello world! This is AutoCV.</h1>')
+});
+
+server.get('/api/users', (_, res) => {
+    console.log(`GET /api/user`);
+    User.find({})
+    .then(users => {
+        res.json(result);
+    })
+    .catch(error => next(error));
+});
+
+server.get('/api/users/:id', (req, res, next) => {
     console.log(`GET /api/user/:id`);
     const {id} = req.params;
-    User.findById(id).then(user => {
+    User.findById(id)
+    .then(user => {
         if (user) {
             return res.json(user);
         } else {
             res.status(404).end();
         }
-    }).catch(err => {
-        next(err)
-    });
+    })
+    .catch(err => next(err));
 });
 
-server.post('/api/user', (req, res, next) => {
+server.post('/api/users', (req, res, next) => {
     console.log(`POST /api/user`);
     const user = req.body;
     
@@ -62,7 +89,7 @@ server.post('/api/user', (req, res, next) => {
     }).catch(error => next(error));
 });
 
-server.put('/api/user/:id', (req, res, next) => {
+server.put('/api/users/:id', (req, res, next) => {
     console.log(`PUT /api/user/:id`);
     const {id} = req.params;
     const user = req.body;
@@ -74,18 +101,15 @@ server.put('/api/user/:id', (req, res, next) => {
     User.findByIdAndUpdate(id, newUserInfo, {new: true})
         .then(savedUser => {
             res.json(savedUser);
-        });
+        }).catch( err => next(err));
 });
 
-server.delete('/api/user/:id', (req, res, next) => {
+server.delete('/api/users/:id', (req, res, next) => {
     console.log(`Delete /api/user/:id`);
     const {id} = req.params;
-    User.findByIdAndRemove(id).then(_ => {
+    User.findByIdAndRemove(id).then(() => {
         res.status(204).end();
-    }).catch(err => {
-        next(err)
-    });
-    res.status(204).end();
+    }).catch(err => next(err));
 });
 
 server.get('/user/signin/github/callback', (req, res, _) => {
@@ -118,7 +142,12 @@ server.get('/user/signin/github/callback', (req, res, _) => {
 });
 
 server.use(notFound);
+
+// The error handler must be before any other error middleware and after all controllers
+server.use(Sentry.Handlers.errorHandler());
+
 server.use(handleErrors);
+
 
 server.listen(port, () => {
     console.log('Up and running with port', port);
