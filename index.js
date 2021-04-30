@@ -14,6 +14,8 @@ const User = require('./models/User');
 const notFound = require('./middleware/notFound');
 const handleErrors = require('./middleware/handleErrors');
 
+const usersRouter = require('./controllers/users');
+
 // use middlewares
 server.use(cors());
 server.use(express.json());
@@ -44,73 +46,7 @@ server.get('/', (_, res) => {
     res.send('<h1>Hello world! This is AutoCV.</h1>')
 });
 
-server.get('/api/users', (_, res) => {
-    console.log(`GET /api/user`);
-    User.find({})
-    .then(users => {
-        res.json(result);
-    })
-    .catch(error => next(error));
-});
-
-server.get('/api/users/:id', (req, res, next) => {
-    console.log(`GET /api/user/:id`);
-    const {id} = req.params;
-    User.findById(id)
-    .then(user => {
-        if (user) {
-            return res.json(user);
-        } else {
-            res.status(404).end();
-        }
-    })
-    .catch(err => next(err));
-});
-
-server.post('/api/users', (req, res, next) => {
-    console.log(`POST /api/user`);
-    const user = req.body;
-    
-    if(!user.email) {
-        return res.status(400).json({
-            error: 'required "email" field is missing'
-        });
-    }
-
-    const newUser = new User({
-        email: user.email, 
-        password: user.password, 
-        fullName: user.fullName,
-        createdAt: new Date().toISOString()
-    });
-
-    newUser.save().then(savedUser => {
-        res.json(savedUser);
-    }).catch(error => next(error));
-});
-
-server.put('/api/users/:id', (req, res, next) => {
-    console.log(`PUT /api/user/:id`);
-    const {id} = req.params;
-    const user = req.body;
-    
-    const newUserInfo = {
-        fullName: user.fullName
-    };
-
-    User.findByIdAndUpdate(id, newUserInfo, {new: true})
-        .then(savedUser => {
-            res.json(savedUser);
-        }).catch( err => next(err));
-});
-
-server.delete('/api/users/:id', (req, res, next) => {
-    console.log(`Delete /api/user/:id`);
-    const {id} = req.params;
-    User.findByIdAndRemove(id).then(() => {
-        res.status(204).end();
-    }).catch(err => next(err));
-});
+server.use('/api/users', usersRouter);
 
 server.get('/user/signin/github/callback', (req, res, _) => {
     const {query} = req;
