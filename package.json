@@ -7,7 +7,8 @@
     "dev": "cross-env ENVIRONMENT=dev nodemon index.js",
     "dev_win": "set ENVIRONMENT=dev&& nodemon index.js",
     "prod": "cross-env ENVIRONMENT=prod node index.js",
-    "test": "jest --verbose"
+    "test": "cross-env ENVIRONMENT=test jest --verbose --silent",
+    "test:watch": "npm run test -- --watch"
   },
   "keywords": [],
   "author": "",
@@ -25,9 +26,10 @@
     "cross-env": "7.0.3",
     "eslint": "7.22.0",
     "jest": "26.6.3",
-    "nodemon": "2.0.7"
+    "nodemon": "2.0.7",
+    "supertest": "^6.1.3"
   },
-  "eslintConfig" : {
+  "eslintConfig": {
     "extends": "./node_modules/standard/eslintrc.json",
     "env": {
       "jest": true
