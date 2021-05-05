@@ -1,8 +1,9 @@
 const { Schema, model  } = require("mongoose");
 
 const curriculumSchema = new Schema({
-    name: String, 
+    name: String,
     description: String,
+    language: String,
     createdAt: Date,
     user: {
         type: Schema.Types.ObjectId,
@@ -23,6 +24,14 @@ const curriculumSchema = new Schema({
     projects: [{
         type: Schema.Types.ObjectId,
         ref: 'Project'
+    }],
+    workExperiences: [{
+        type: Schema.Types.ObjectId,
+        ref: 'WorkExperience'
+    }],
+    academicExperiences: [{
+        type: Schema.Types.ObjectId,
+        ref: 'AcademicExperience'
     }]
 });
 

@@ -1,14 +1,23 @@
 const bcrypt = require('bcrypt');
 const usersRouter = require('express').Router();
-const User = require('../models/User');
+const {User} = require('../models');
 
 usersRouter.get('/', async (_, res, next) => {
-    const users = await User.find({})
-    res.status(200).json(users);
+    try{
+        const users = await User.find({}).populate(
+            'cvs', {
+                name: 1,
+                description: 1,
+                language: 1
+            }
+        );
+        res.status(200).json(users);
+    } catch(error) {
+        next(error);
+    }
 });
 
 usersRouter.get('/:id', (req, res, next) => {
-    console.log(`GET /api/user/:id`);
     const {id} = req.params;
     User.findById(id)
     .then(user => {
@@ -22,7 +31,6 @@ usersRouter.get('/:id', (req, res, next) => {
 });
 
 usersRouter.post('/', async (req, res, next) => {
-    console.log(`POST /api/user`);
     const {body} = req;
     const {email, password, fullName} = body;
     
@@ -50,7 +58,6 @@ usersRouter.post('/', async (req, res, next) => {
 });
 
 usersRouter.put('/:id', (req, res, next) => {
-    console.log(`PUT /api/user/:id`);
     const {id} = req.params;
     const user = req.body;
     

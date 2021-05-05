@@ -1,20 +1,19 @@
 require('dotenv').config({path: `./env/${process.env.ENVIRONMENT}/.env`});
 require('./mongo');
-
+const port = process.env.PORT || 5000;
 const express = require('express');
 const request = require('request');
 const app = express();
 const cors = require('cors');
 const Sentry = require('@sentry/node');
 const Tracing = require("@sentry/tracing");
-const port = process.env.PORT || 5000;
 
-
-const User = require('./models/User');
+// import middlewares
 const notFound = require('./middleware/notFound');
 const handleErrors = require('./middleware/handleErrors');
 
-const usersRouter = require('./controllers/users');
+// import models and controllers
+const {cvsRouter, usersRouter} = require('./controllers/');
 
 // use middlewares
 app.use(cors());
@@ -46,7 +45,9 @@ app.get('/', (_, res) => {
     res.send('<h1>Hello world! This is AutoCV.</h1>')
 });
 
+// Setting base routes
 app.use('/api/users', usersRouter);
+app.use('/api/curriculums', cvsRouter);
 
 app.get('/user/signin/github/callback', (req, res, _) => {
     const {query} = req;
@@ -86,7 +87,7 @@ app.use(handleErrors);
 
 
 const server = app.listen(port, () => {
-    console.log('Up and running with port', port);
+    console.log('Up and running with port: ', port);
 });
 
 process.on('exit', () => {

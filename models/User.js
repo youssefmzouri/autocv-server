@@ -24,6 +24,14 @@ const userSchema = new Schema({
     projects: [{
         type: Schema.Types.ObjectId,
         ref: 'Project'
+    }],
+    workExperiences: [{
+        type: Schema.Types.ObjectId,
+        ref: 'WorkExperience'
+    }],
+    academicExperiences: [{
+        type: Schema.Types.ObjectId,
+        ref: 'AcademicExperience'
     }]
 });
 
