@@ -2,13 +2,9 @@ const bcrypt = require('bcrypt');
 const usersRouter = require('express').Router();
 const User = require('../models/User');
 
-usersRouter.get('/', (_, res, next) => {
-    console.log(`GET /api/user`);
-    User.find({})
-    .then(users => {
-        res.json(users);
-    })
-    .catch(error => next(error));
+usersRouter.get('/', async (_, res, next) => {
+    const users = await User.find({})
+    res.status(200).json(users);
 });
 
 usersRouter.get('/:id', (req, res, next) => {
@@ -30,9 +26,9 @@ usersRouter.post('/', async (req, res, next) => {
     const {body} = req;
     const {email, password, fullName} = body;
     
-    if(!email) {
+    if(!email || !password) {
         return res.status(400).json({
-            error: 'required "email" field is missing'
+            error: '"email" and "password" fields are requireds'
         });
     }
     const saltRounds = 10;
@@ -45,8 +41,12 @@ usersRouter.post('/', async (req, res, next) => {
         createdAt: new Date().toISOString()
     });
 
-    const savedUser = await user.save();
-    res.json(savedUser);
+    try{
+        const savedUser = await user.save();
+        res.status(201).json(savedUser);
+    } catch(error) {
+        next(error);
+    }
 });
 
 usersRouter.put('/:id', (req, res, next) => {
@@ -64,12 +64,10 @@ usersRouter.put('/:id', (req, res, next) => {
         }).catch( err => next(err));
 });
 
-usersRouter.delete('/:id', (req, res, next) => {
-    console.log(`Delete /api/user/:id`);
+usersRouter.delete('/:id', async (req, res, next) => {
     const {id} = req.params;
-    User.findByIdAndRemove(id).then(() => {
-        res.status(204).end();
-    }).catch(err => next(err));
+    await User.findByIdAndRemove(id);
+    res.status(204).end();
 });
 
 module.exports = usersRouter;

@@ -23,5 +23,5 @@ const curriculumSchema = new Schema({
     }
 });
 
-const Curriculum = model('Curriculum', userSchema);
+const Curriculum = model('Curriculum', curriculumSchema);
 module.exports = Curriculum;

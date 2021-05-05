@@ -28,25 +28,3 @@ const userSchema = new Schema({
 
 const User = model('User', userSchema);
 module.exports = User;
-
-// User.find({
-
-// }).then(result => {
-//     console.log(result);
-//     mongoose.connection.close();
-// })
-
-// const user = new User({
-//     email: 'youssef@email.com',
-//     password: '1234',
-//     fullname: 'Youssef El Mzouri',
-//     createdAt: new Date()
-// })
-
-// user.save()
-//     .then(result => {
-//         console.log(result);
-//         mongoose.connection.close();
-//     }).catch(error => {
-//         console.error(error)
-//     });
