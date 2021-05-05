@@ -8,6 +8,22 @@ const userSchema = new Schema({
     cvs: [{
         type: Schema.Types.ObjectId,
         ref: 'Curriculum'
+    }],
+    userProfiles: [{
+        type: Schema.Types.ObjectId,
+        ref: 'UserProfile'
+    }],
+    profilePictures: [{
+        type: Schema.Types.ObjectId,
+        ref: 'ProfilePicture'
+    }],
+    templates: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Template'
+    }],
+    projects: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Project'
     }]
 });
 

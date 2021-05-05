@@ -1,28 +1,15 @@
 const { Schema, model  } = require("mongoose");
 
-const curriculumSchema = new Schema({
-    name: String, 
-    description: String,
-    createdAt: Date,
+const profilePictureSchema = new Schema({
+    ref: String,
+    image: String,
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
-    userProfile: {
+    cvs: [{
         type: Schema.Types.ObjectId,
-        ref: 'UserProfile'
-    },
-    profilePicture : {
-        type: Schema.Types.ObjectId,
-        ref: 'ProfilePicture'
-    },
-    template: {
-        type: Schema.Types.ObjectId,
-        ref: 'Template'
-    },
-    projects: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Project'
+        ref: 'Curriculum'
     }]
 });
 
@@ -31,7 +18,7 @@ const curriculumSchema = new Schema({
  * To be equal with the model defined here in the source code.
  * Thats beacuse we override the function toJSON.transform()
  */
- curriculumSchema.set('toJSON', {
+ profilePictureSchema.set('toJSON', {
     transform: (_, returnedObject) => {
         returnedObject.id = returnedObject._id;
         delete returnedObject._id;
@@ -39,5 +26,5 @@ const curriculumSchema = new Schema({
     }
 });
 
-const Curriculum = model('Curriculum', curriculumSchema);
-module.exports = Curriculum;
+const ProfilePicture = model('ProfilePicture', profilePictureSchema);
+module.exports = ProfilePicture;
