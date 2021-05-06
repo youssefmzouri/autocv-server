@@ -1,17 +1,55 @@
+require('dotenv').config({path: `./env/${process.env.ENVIRONMENT}/.env`});
+require('./mongo');
+const port = process.env.PORT || 5000;
 const express = require('express');
 const request = require('request');
-const server = express();
-const env = require('./environment/env-manager').environment();
+const app = express();
+const cors = require('cors');
+const Sentry = require('@sentry/node');
+const Tracing = require("@sentry/tracing");
 
-// usar middlewares
-server.use(express.json());
-server.use(express.urlencoded({extended: false}));
+// import middlewares
+const notFound = require('./middleware/notFound');
+const handleErrors = require('./middleware/handleErrors');
 
-server.listen(env.SERVER_PORT, () => {
-    console.log('Up and running with port', env.SERVER_PORT);
+// import models and controllers
+const {cvsRouter, usersRouter} = require('./controllers/');
+
+// use middlewares
+app.use(cors());
+app.use(express.json());
+app.use('/images', express.static('images'));
+
+Sentry.init({
+    dsn: "https://794168c17a5d45479e03e17182e15071@o587451.ingest.sentry.io/5738698",
+    integrations: [
+        // enable HTTP calls tracing
+        new Sentry.Integrations.Http({ tracing: true }),
+        // enable Express.js middleware tracing
+        new Tracing.Integrations.Express({ app }),
+    ],
+
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    // We recommend adjusting this value in production
+    tracesSampleRate: 1.0,
 });
 
-server.get('/user/signin/github/callback', (req, res, next) => {
+// RequestHandler creates a separate execution context using domains, so that every
+// transaction/span/breadcrumb is attached to its own Hub instance
+app.use(Sentry.Handlers.requestHandler());
+// TracingHandler creates a trace for every incoming request
+app.use(Sentry.Handlers.tracingHandler());
+
+app.get('/', (_, res) => {
+    res.send('<h1>Hello world! This is AutoCV.</h1>')
+});
+
+// Setting base routes
+app.use('/api/users', usersRouter);
+app.use('/api/curriculums', cvsRouter);
+
+app.get('/user/signin/github/callback', (req, res, _) => {
     const {query} = req;
     const {code} = query;
 
@@ -29,8 +67,8 @@ server.get('/user/signin/github/callback', (req, res, next) => {
             'Accept': 'application/json'
         },
         formData: {
-            'client_id': env.GIT_CLIENT_ID,
-            'client_secret': env.GIT_CLIENT_SECRET,
+            'client_id': process.env.GIT_CLIENT_ID,
+            'client_secret': process.env.GIT_CLIENT_SECRET,
             'code': code
         }
     };
@@ -40,28 +78,20 @@ server.get('/user/signin/github/callback', (req, res, next) => {
     });
 });
 
-// server.get('/api/user', (req, res) => {
-//     res.status(200).send([{
-//             id: 21,
-//             name: "name",
-//             age: "30",
-//             email: "name@gmail.com"
-//         }]);
-// });
+app.use(notFound);
 
-// server.get('/api/user/:id', (req, res) => {
-//     const id = req.params.id;
-//     // DO THE SEARCH 
-//     res.status(200).send({
-//         id: 21,
-//         name: "name",
-//         age: "30",
-//         email: "name@gmail.com"
-//     });
-// });
+// The error handler must be before any other error middleware and after all controllers
+app.use(Sentry.Handlers.errorHandler());
 
-// server.post('/api/user/', (req, res) => {
-//     const body = req.body;
-//     console.log('Usuario ', body);
-//     res.status(200).send({"message": `Usuario ${body.user.name} creado `});
-// });
+app.use(handleErrors);
+
+
+const server = app.listen(port, () => {
+    console.log('Up and running with port: ', port);
+});
+
+process.on('exit', () => {
+    server.close();
+});
+
+module.exports = {app, server};

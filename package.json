@@ -4,20 +4,38 @@
   "description": "Backend of the auto-cv project",
   "main": "index.js",
   "scripts": {
-    "dev": "NODE_ENV=dev nodemon index.js",
-    "build": "NODE_ENV=pro node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "cross-env ENVIRONMENT=dev nodemon index.js",
+    "dev_win": "set ENVIRONMENT=dev&& nodemon index.js",
+    "prod": "cross-env ENVIRONMENT=prod node index.js",
+    "test": "cross-env ENVIRONMENT=test jest --verbose --silent",
+    "test:watch": "npm run test -- --watch"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1",
-    "mongoose": "^5.12.1"
+    "@sentry/node": "^6.3.1",
+    "@sentry/tracing": "^6.3.1",
+    "bcrypt": "5.0.1",
+    "cors": "2.8.5",
+    "dotenv": "8.2.0",
+    "express": "4.17.1",
+    "mongoose": "5.12.1"
   },
   "devDependencies": {
-    "eslint": "^7.22.0",
-    "jest": "^26.6.3",
-    "nodemon": "^2.0.7"
+    "cross-env": "7.0.3",
+    "eslint": "7.22.0",
+    "jest": "26.6.3",
+    "nodemon": "2.0.7",
+    "supertest": "^6.1.3"
+  },
+  "eslintConfig": {
+    "extends": "./node_modules/standard/eslintrc.json",
+    "env": {
+      "jest": true
+    }
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }
