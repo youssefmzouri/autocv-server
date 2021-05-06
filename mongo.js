@@ -12,9 +12,9 @@ mongoose.connect(connectionString, {
     console.log('Database connected');
 }).catch( error => {
     console.log(error);
-})
+});
 
 process.on('uncaughtException', (error) => {
-    console.log("unhandled error ...", error);
+    console.log("unhandled error: ", error);
     mongoose.disconnect();
 });

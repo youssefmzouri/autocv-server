@@ -13,7 +13,7 @@ const notFound = require('./middleware/notFound');
 const handleErrors = require('./middleware/handleErrors');
 
 // import models and controllers
-const {cvsRouter, usersRouter} = require('./controllers/');
+const {cvsRouter, usersRouter, loginRouter} = require('./controllers/');
 
 // use middlewares
 app.use(cors());
@@ -48,6 +48,7 @@ app.get('/', (_, res) => {
 // Setting base routes
 app.use('/api/users', usersRouter);
 app.use('/api/curriculums', cvsRouter);
+app.use('/api/login', loginRouter);
 
 app.get('/user/signin/github/callback', (req, res, _) => {
     const {query} = req;
