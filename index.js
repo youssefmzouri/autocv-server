@@ -9,8 +9,7 @@ const Sentry = require('@sentry/node');
 const Tracing = require("@sentry/tracing");
 
 // import middlewares
-const notFound = require('./middleware/notFound');
-const handleErrors = require('./middleware/handleErrors');
+const {notFound, handleErrors} = require('./middleware');
 
 // import models and controllers
 const {cvsRouter, usersRouter, loginRouter} = require('./controllers/');

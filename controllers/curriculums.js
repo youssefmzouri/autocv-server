@@ -1,5 +1,7 @@
 const cvsRouter = require('express').Router();
 const {User, Curriculum} = require('../models');
+const {userExtractor} = require('../middleware');
+const jwt = require('jsonwebtoken');
 
 cvsRouter.get('/', async (_, res, next) => {
     const cvs = await Curriculum.find({}).populate(
@@ -24,15 +26,16 @@ cvsRouter.get('/:id', (req, res, next) => {
     .catch(err => next(err));
 });
 
-cvsRouter.post('/', async (req, res, next) => {
-    console.log("POST curriculums");
-    const {name, description, language = 'es', userId} = req.body;
-    
-    if(!name || !userId) {
+cvsRouter.post('/', userExtractor, async (req, res, next) => {
+    const {name, description, language = 'es'} = req.body;
+
+    if(!name) {
         return res.status(400).json({
-            error: '"name" and "userId" fields are requireds'
+            error: '"name" field are required'
         });
     }
+
+    const {userId} = req;
 
     const user = await User.findById(userId);
 
@@ -54,7 +57,7 @@ cvsRouter.post('/', async (req, res, next) => {
     }
 });
 
-cvsRouter.put('/:id', (req, res, next) => {
+cvsRouter.put('/:id', userExtractor, (req, res, next) => {
     const {id} = req.params;
     const cv = req.body;
     
@@ -70,7 +73,7 @@ cvsRouter.put('/:id', (req, res, next) => {
         }).catch( err => next(err));
 });
 
-cvsRouter.delete('/:id', async (req, res, next) => {
+cvsRouter.delete('/:id', userExtractor, async (req, res, next) => {
     const {id} = req.params;
     try {
         await Curriculum.findByIdAndRemove(id);
