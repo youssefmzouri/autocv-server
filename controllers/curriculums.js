@@ -7,7 +7,8 @@ cvsRouter.get('/', async (_, res, next) => {
     const cvs = await Curriculum.find({}).populate(
         'user', {
             email: 1,
-            fullName: 1
+            name: 1,
+            lastName: 1
         }
     );
     res.status(200).json(cvs);

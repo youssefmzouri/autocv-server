@@ -18,3 +18,7 @@ process.on('uncaughtException', (error) => {
     console.log("unhandled error: ", error);
     mongoose.disconnect();
 });
+
+module.exports = {
+    mongoose
+}

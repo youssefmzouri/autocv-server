@@ -31,7 +31,8 @@ loginRouter.post('/', async (req, res, next) => {
 
     res.send({
         email: user.email,
-        fullName: user.fullName,
+        name: user.name,
+        lastName: user.lastName,
         token
     });
 });
