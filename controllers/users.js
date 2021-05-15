@@ -32,7 +32,7 @@ usersRouter.get('/:id', (req, res, next) => {
 
 usersRouter.post('/', async (req, res, next) => {
     const {body} = req;
-    const {email, password, fullName} = body;
+    const {email, password, name, lastName} = body;
     
     if(!email || !password) {
         return res.status(400).json({
@@ -45,7 +45,8 @@ usersRouter.post('/', async (req, res, next) => {
     const user = new User({
         email: email, 
         passwordHash: passwordHashed,
-        fullName: fullName,
+        name,
+        lastName,
         createdAt: new Date().toISOString()
     });
 
@@ -62,7 +63,8 @@ usersRouter.put('/:id', (req, res, next) => {
     const user = req.body;
     
     const newUserInfo = {
-        fullName: user.fullName
+        name: user.name,
+        lastName: user.lastName
     };
 
     User.findByIdAndUpdate(id, newUserInfo, {new: true})

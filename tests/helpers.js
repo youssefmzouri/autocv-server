@@ -1,4 +1,8 @@
-const {app, server} = require('../index');
+const {
+    app, server, mongoose,
+    User: UserModel,
+    Curriculum: CurriculumModel
+} = require('../index');
 const supertest = require('supertest');
 const api = supertest(app);
 
@@ -6,12 +10,14 @@ const initialUsers = [
     {
         "email": "youssef@mail.com", 
         "passwordHash": 'encr1pt3dPassword1', 
-        "fullName": "Youssef EL Mzouri",
+        "name": "Youssef",
+        "lastName": "El Mzouri"
     },
     {
         "email": "youssef2@mail.com", 
         "passwordHash": 'encr1pt3dPassword2', 
-        "fullName": "Youssef Derdak",
+        "name": "Youssef",
+        "lastName": "Derdak"
     }
 ];
 
@@ -27,5 +33,8 @@ module.exports = {
     initialUsers,
     api,
     server,
+    mongoose,
+    UserModel,
+    CurriculumModel,
     getAllFromUsers
 }

@@ -1,5 +1,5 @@
 require('dotenv').config({path: `./env/${process.env.ENVIRONMENT}/.env`});
-require('./mongo');
+const {mongoose} = require('./mongo');
 const port = process.env.PORT || 5000;
 const express = require('express');
 const request = require('request');
@@ -8,12 +8,14 @@ const cors = require('cors');
 const Sentry = require('@sentry/node');
 const Tracing = require("@sentry/tracing");
 
+const User = require('./models/User');
+const Curriculum = require('./models/Curriculum');
+
 // import middlewares
-const notFound = require('./middleware/notFound');
-const handleErrors = require('./middleware/handleErrors');
+const {notFound, handleErrors} = require('./middleware');
 
 // import models and controllers
-const {cvsRouter, usersRouter} = require('./controllers/');
+const {cvsRouter, usersRouter, loginRouter} = require('./controllers/');
 
 // use middlewares
 app.use(cors());
@@ -48,6 +50,7 @@ app.get('/', (_, res) => {
 // Setting base routes
 app.use('/api/users', usersRouter);
 app.use('/api/curriculums', cvsRouter);
+app.use('/api/login', loginRouter);
 
 app.get('/user/signin/github/callback', (req, res, _) => {
     const {query} = req;
@@ -91,7 +94,14 @@ const server = app.listen(port, () => {
 });
 
 process.on('exit', () => {
+    mongoose.disconnect();
     server.close();
 });
 
-module.exports = {app, server};
+module.exports = {
+    app,
+    server,
+    mongoose,
+    User,
+    Curriculum
+};

@@ -1,5 +1,6 @@
 const cvsRouter = require('./curriculums');
 const usersRouter = require('./users');
+const loginRouter = require('./login');
 // const ProfilePicture = require('./profilePictures');
 // const Project = require('./projects');
 // const Template = require('./templates');
@@ -10,4 +11,5 @@ const usersRouter = require('./users');
 module.exports = {
     cvsRouter,
     usersRouter,
+    loginRouter
 }
