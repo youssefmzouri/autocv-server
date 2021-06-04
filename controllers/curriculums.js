@@ -3,18 +3,18 @@ const {User, Curriculum} = require('../models');
 const {userExtractor} = require('../middleware');
 const jwt = require('jsonwebtoken');
 
-cvsRouter.get('/', async (_, res, next) => {
-    const cvs = await Curriculum.find({}).populate(
+cvsRouter.get('/', userExtractor, async (req, res, next) => {
+    const {userId} = req;
+    const cvs = await Curriculum.find({user : userId}).populate(
         'user', {
-            email: 1,
-            name: 1,
-            lastName: 1
+            email: 1
         }
     );
     res.status(200).json(cvs);
 });
 
-cvsRouter.get('/:id', (req, res, next) => {
+cvsRouter.get('/:id', userExtractor, (req, res, next) => {
+    // const {userId} = req;
     const {id} = req.params;
     Curriculum.findById(id)
     .then(cv => {

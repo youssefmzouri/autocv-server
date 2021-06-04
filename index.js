@@ -13,6 +13,7 @@ const Curriculum = require('./models/Curriculum');
 
 // import middlewares
 const {notFound, handleErrors} = require('./middleware');
+const userExtractor = require('./middleware/userExtractor');
 
 // import models and controllers
 const {cvsRouter, usersRouter, loginRouter} = require('./controllers/');
@@ -52,9 +53,9 @@ app.use('/api/users', usersRouter);
 app.use('/api/curriculums', cvsRouter);
 app.use('/api/login', loginRouter);
 
-app.get('/user/signin/github/callback', (req, res, _) => {
-    const {query} = req;
-    const {code} = query;
+app.post('/api/github/authenticate', userExtractor, (req, res, next) => {
+    const {code} = req.body;
+    const {userId} = req;
 
     if (!code) {
         return res.send({
@@ -76,8 +77,13 @@ app.get('/user/signin/github/callback', (req, res, _) => {
         }
     };
     request(options, (error, response) => {
-        if (error) console.log('Error getting access token ... ');
-        console.log('Access token: ', response.body);
+        if (!error) {
+            console.log('Access token: ', response.body);
+            return res.status(200).json(response);
+        } else {
+            console.log('Error getting access token ... ');
+            return res.status(400).json(error);
+        }
     });
 });
 
