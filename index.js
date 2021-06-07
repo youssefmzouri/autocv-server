@@ -87,6 +87,44 @@ app.post('/api/github/authenticate', userExtractor, (req, res, next) => {
     });
 });
 
+app.post('/api/github/validate', userExtractor, (req, res, next) => {
+    const {tokenGithub} = req.body;
+    const {userId} = req;
+
+    if (!tokenGithub) {
+        return res.status(400).json({
+            success: false,
+            message: 'Error: no tokenGithub provided'
+        });
+    }
+
+    const options = {
+        'method': 'GET',
+        'url': 'https://api.github.com',
+        'headers': {
+            'Authorization': `bearer ${tokenGithub}`,
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36'
+        }
+    };
+
+    request(options, (error, response) => {
+        const {statusCode} = response;
+        if (statusCode == 200) {
+            console.log('Github access token valid: ', response.body);
+            return res.status(200).json({
+                success: true,
+                message: 'Token valid!'
+            });
+        } else {
+            console.log('Error validating access token ... ', response.body);
+            return res.status(400).json({
+                success: false,
+                message: 'Token invalid!'
+            });
+        }
+    });
+});
+
 app.use(notFound);
 
 // The error handler must be before any other error middleware and after all controllers
