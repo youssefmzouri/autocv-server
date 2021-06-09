@@ -16,7 +16,7 @@ const {notFound, handleErrors} = require('./middleware');
 const userExtractor = require('./middleware/userExtractor');
 
 // import models and controllers
-const {cvsRouter, usersRouter, loginRouter} = require('./controllers/');
+const {cvsRouter, usersRouter, loginRouter, projectsRouter} = require('./controllers/');
 
 // use middlewares
 app.use(cors());
@@ -50,8 +50,10 @@ app.get('/', (_, res) => {
 
 // Setting base routes
 app.use('/api/users', usersRouter);
-app.use('/api/curriculums', cvsRouter);
 app.use('/api/login', loginRouter);
+
+app.use('/api/curriculums', cvsRouter);
+app.use('/api/projects', projectsRouter);
 
 app.post('/api/github/authenticate', userExtractor, (req, res, next) => {
     const {code} = req.body;
@@ -110,7 +112,7 @@ app.post('/api/github/validate', userExtractor, (req, res, next) => {
     request(options, (error, response) => {
         const {statusCode} = response;
         if (statusCode == 200) {
-            console.log('Github access token valid: ', response.body);
+            // console.log('Github access token valid: ', response.body);
             return res.status(200).json({
                 success: true,
                 message: 'Token valid!'
@@ -121,6 +123,39 @@ app.post('/api/github/validate', userExtractor, (req, res, next) => {
                 success: false,
                 message: 'Token invalid!'
             });
+        }
+    });
+});
+
+
+app.post('/api/github/user/repositories', userExtractor, (req, res, next) => {
+    const {tokenGithub} = req.body;
+    const {userId} = req;
+
+    if (!tokenGithub) {
+        return res.status(400).json({
+            success: false,
+            message: 'Error: no tokenGithub provided'
+        });
+    }
+
+    const options = {
+        'method': 'GET',
+        'url': 'https://api.github.com/user/repos',
+        'headers': {
+            'Authorization': `bearer ${tokenGithub}`,
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36'
+        }
+    };
+
+    request(options, (error, response) => {
+        const {statusCode, body} = response;
+        if (statusCode == 200) {
+            console.log('Repositories returneds: ', body);
+            return res.status(200).json(body);
+        } else {
+            console.log('Error getting repositories ... ', error);
+            return res.status(statusCode).json(error);
         }
     });
 });
