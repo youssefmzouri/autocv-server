@@ -3,15 +3,14 @@ const { Schema, model  } = require("mongoose");
 const projectSchema = new Schema({
     name: String,
     description: String,
-    githubLink: String,
+    createdAt: Date,
+    updatedAt: Date,
+    isFromGithub: Boolean,
+    githubUri: String,
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'
-    },
-    cv: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Curriculum'
-    }]
+    }
 });
 
 /**
