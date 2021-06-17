@@ -30,9 +30,9 @@ const userSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Project'
     }],
-    workExperiences: [{
+    laboralExperiences: [{
         type: Schema.Types.ObjectId,
-        ref: 'WorkExperience'
+        ref: 'LaboralExperience'
     }],
     academicExperiences: [{
         type: Schema.Types.ObjectId,

@@ -4,7 +4,7 @@ const ProfilePicture = require('./ProfilePicture');
 const Project = require('./Project');
 const Template = require('./Template');
 const UserProfile = require('./UserProfile');
-const WorkExperience = require('./WorkExperience');
+const LaboralExperience = require('./LaboralExperience');
 const AcademicExperience = require('./AcademicExperience');
 
 module.exports = {
@@ -14,6 +14,6 @@ module.exports = {
     Project,
     Template,
     UserProfile,
-    WorkExperience,
+    LaboralExperience,
     AcademicExperience
 }

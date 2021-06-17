@@ -1,22 +1,21 @@
 const { Schema, model  } = require("mongoose");
 
-const workExperienceSchema = new Schema({
-    company: String,
-    title: String,
-    description: String,
-    employmentType: String,
-    location: String,
+const LaboralExperienceSchema = new Schema({
+    companyName: String,
+    position: String,
     startDate: Date,
     endDate: Date,
     stillActive: Boolean,
+    
+    companyWebPage: String,
+    description: String,
+    location: String,
+    createdAt: Date,
+    updatedAt: Date,
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'
-    },
-    cv: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Curriculum'
-    }]
+    }
 });
 
 /**
@@ -24,7 +23,7 @@ const workExperienceSchema = new Schema({
  * To be equal with the model defined here in the source code.
  * Thats beacuse we override the function toJSON.transform()
  */
- workExperienceSchema.set('toJSON', {
+ LaboralExperienceSchema.set('toJSON', {
     transform: (_, returnedObject) => {
         returnedObject.id = returnedObject._id;
         delete returnedObject._id;
@@ -32,5 +31,5 @@ const workExperienceSchema = new Schema({
     }
 });
 
-const WorkExperience = model('WorkExperience', workExperienceSchema);
-module.exports = WorkExperience;
+const LaboralExperience = model('LaboralExperience', LaboralExperienceSchema);
+module.exports = LaboralExperience;
