@@ -3,18 +3,13 @@ const { Schema, model  } = require("mongoose");
 const academicExperienceSchema = new Schema({
     school: String,
     degree: String,
-    description: String,
     startYear: Date,
     endYear: Date,
     stillActive: Boolean,
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'
-    },
-    cv: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Curriculum'
-    }]
+    }
 });
 
 /**

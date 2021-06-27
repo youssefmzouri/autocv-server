@@ -5,16 +5,11 @@ const userProfileSchema = new Schema({
     githubUser: String,
     web: String,
     phone: String,
-    phoneAux: String,
     city: String,
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'
-    },
-    cv: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Curriculum'
-    }]
+    }
 });
 
 /**
