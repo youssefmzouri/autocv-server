@@ -3,7 +3,6 @@ const { Schema, model  } = require("mongoose");
 const academicExperienceSchema = new Schema({
     school: String,
     degree: String,
-    startYear: Date,
     endYear: Date,
     stillActive: Boolean,
     user: {

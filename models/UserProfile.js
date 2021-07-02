@@ -1,10 +1,11 @@
 const { Schema, model  } = require("mongoose");
 
 const userProfileSchema = new Schema({
-    linkedinUSer: String,
+    contactEmail: String,
+    contactPhone: String,
     githubUser: String,
+    linkedinUSer: String,
     web: String,
-    phone: String,
     city: String,
     user: {
         type: Schema.Types.ObjectId,
