@@ -13,7 +13,6 @@ laboralExperiencesRouter.get('/', userExtractor, async (req, res, next) => {
 });
 
 laboralExperiencesRouter.get('/:id', userExtractor, (req, res, next) => {
-    // const {userId} = req;
     const {id} = req.params;
     LaboralExperience.findById(id)
     .then(lexp => {
@@ -26,64 +25,85 @@ laboralExperiencesRouter.get('/:id', userExtractor, (req, res, next) => {
     .catch(err => next(err));
 });
 
-// laboralExperiencesRouter.post('/', userExtractor, async (req, res, next) => {
-//     const {name, description} = req.body;
-//     const isFromGithub = req.body.isFromGithub || false;
-//     const githubUri = req.body.githubUri || '';
-
-//     if(!name || !description) {
-//         return res.status(400).json({
-//             error: '"name" field and "description" field are requireds'
-//         });
-//     }
-
-//     const {userId} = req;
-//     const user = await User.findById(userId);
-
-//     const project = new LaboralExperience({
-//         name, 
-//         description,
-//         user: user._id,
-//         createdAt: new Date().toISOString(),
-//         updatedAt: new Date().toISOString(),
-//         isFromGithub,
-//         githubUri
-//     });
-
-//     try {
-//         const savedProject = await project.save();
-//         user.projects = user.projects.concat(savedProject._id);
-//         await user.save();
-//         res.status(201).json(savedProject);
-//     } catch(error) {
-//         next(error);
-//     }
-// });
-
-// laboralExperiencesRouter.put('/:id', userExtractor, (req, res, next) => {
-//     const {id} = req.params;
-//     const project = req.body;
+laboralExperiencesRouter.post('/', userExtractor, async (req, res, next) => {
+    let {
+        companyName,
+        position,
+        description,
+        startDate,
+        endDate,
+        stillActive,
+        companyWebPage,
+        location
+    } = req.body;
     
-//     const newProject = {
-//         name: project.name,
-//         description: project.description,
-//         isFromGithub: project.isFromGithub,
-//         githubUri: project.githubUri,
-//         updatedAt: new Date().toISOString()
-//     };
+    companyWebPage = companyWebPage || '';
+    location = location || '';
+    stillActive = stillActive || false;
+    endDate = endDate || new Date();
 
-//     LaboralExperience.findByIdAndUpdate(id, newProject, {new: true})
-//         .then(savedProject => {
-//             res.json(savedProject);
-//         }).catch( err => next(err));
-// });
+    if(!companyName || !description || !position || !startDate || !endDate ) {
+        return res.status(400).json({
+            error: 'check and send the required fields'
+        });
+    }
+
+    const {userId} = req;
+    const user = await User.findById(userId);
+
+    const exp = new LaboralExperience({
+        companyName,
+        position,
+        description,
+        user: user._id,
+        startDate: startDate,
+        endDate: endDate,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        stillActive,
+        companyWebPage,
+        location
+    });
+
+    try {
+        const savedExp = await exp.save();
+        user.laboralExperiences = user.laboralExperiences.concat(savedExp._id);
+        await user.save();
+        res.status(201).json(savedExp);
+    } catch(error) {
+        next(error);
+    }
+});
+
+laboralExperiencesRouter.put('/:id', userExtractor, (req, res, next) => {
+    const {id} = req.params;
+    const lexp = req.body;
+    
+    const newLexp = {
+        updatedAt: new Date().toISOString(), 
+        ...lexp
+    };
+
+    LaboralExperience.findByIdAndUpdate(id, newLexp, {new: true})
+        .then(savedLexp => {
+            res.json(savedLexp);
+        }).catch( err => next(err));
+});
 
 laboralExperiencesRouter.delete('/:id', userExtractor, async (req, res, next) => {
     const {id} = req.params;
+    const {userId} = req;
     try {
-        await LaboralExperience.findByIdAndRemove(id);
-        res.status(204).end();
+        User.findOneAndUpdate({_id: userId}, {
+            $pull: {
+                'laboralExperiences': id
+            }
+        }, async (err, model) => {
+            await LaboralExperience.findByIdAndRemove(id);        
+            res.status(204).end();
+        });
     } catch(error) {
+        console.log('error deleting lexp: ', error);
         next(error);
     }
 });

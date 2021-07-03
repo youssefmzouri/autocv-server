@@ -14,7 +14,11 @@ const Curriculum = require('./models/Curriculum');
 const {notFound, handleErrors} = require('./middleware');
 
 // import models and controllers
-const {cvsRouter, usersRouter, loginRouter, projectsRouter, laboralExperiencesRouter ,githubRouter} = require('./controllers/');
+const {cvsRouter, usersRouter,
+    loginRouter, projectsRouter, 
+    laboralExperiencesRouter, githubRouter,
+    academicExperienceRouter,
+} = require('./controllers/');
 
 // use middlewares
 app.use(cors());
@@ -54,6 +58,7 @@ app.use('/api/login', loginRouter);
 app.use('/api/curriculums', cvsRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/laboralexperiences', laboralExperiencesRouter);
+app.use('/api/academicexperiences', academicExperienceRouter);
 
 // Third-Party APIS Routes
 app.use('/api/github',githubRouter);

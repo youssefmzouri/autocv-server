@@ -81,9 +81,16 @@ projectsRouter.put('/:id', userExtractor, (req, res, next) => {
 
 projectsRouter.delete('/:id', userExtractor, async (req, res, next) => {
     const {id} = req.params;
+    const {userId} = req;
     try {
-        await Project.findByIdAndRemove(id);
-        res.status(204).end();
+        User.findOneAndUpdate({_id: userId}, {
+            $pull: {
+                'projects': id
+            }
+        }, async (err, model) => {
+            await Project.findByIdAndRemove(id);
+            res.status(204).end();
+        });
     } catch(error) {
         next(error);
     }

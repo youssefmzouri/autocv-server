@@ -76,9 +76,16 @@ cvsRouter.put('/:id', userExtractor, (req, res, next) => {
 
 cvsRouter.delete('/:id', userExtractor, async (req, res, next) => {
     const {id} = req.params;
+    const {userId} = req;
     try {
-        await Curriculum.findByIdAndRemove(id);
-        res.status(204).end();
+        User.findOneAndUpdate({_id: userId}, {
+            $pull: {
+                'cvs': id
+            }
+        }, async (err, model) => {
+            await Curriculum.findByIdAndRemove(id);
+            res.status(204).end();
+        });
     } catch(error) {
         next(error);
     }

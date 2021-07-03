@@ -7,7 +7,7 @@ const projectsRouter = require('./projects');
 // const Template = require('./templates');
 // const UserProfile = require('./userProfiles');
 const laboralExperiencesRouter = require('./laboralExperiences');
-// const AcademicExperience = require('./academicExperiences');
+const academicExperienceRouter = require('./academicExperiences');
 
 module.exports = {
     cvsRouter,
@@ -15,5 +15,6 @@ module.exports = {
     loginRouter,
     projectsRouter,
     laboralExperiencesRouter,
+    academicExperienceRouter,
     githubRouter
 }
