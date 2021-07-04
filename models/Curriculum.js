@@ -5,6 +5,7 @@ const curriculumSchema = new Schema({
     description: String,
     language: String,
     createdAt: Date,
+    updatedAt: Date,
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'

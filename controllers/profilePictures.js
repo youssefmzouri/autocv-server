@@ -60,7 +60,7 @@ profilePicturesRouter.post('/', userExtractor, async (req, res, next) => {
 profilePicturesRouter.delete('/:id', userExtractor, async (req, res, next) => {
     const {id} = req.params;
     const {userId} = req;
-    console.log('Try to delete image with id: ', id);
+    // console.log('Try to delete image with id: ', id);
     try {
         User.findOneAndUpdate({_id: userId}, {
             $pull: {

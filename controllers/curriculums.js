@@ -5,16 +5,14 @@ const jwt = require('jsonwebtoken');
 
 cvsRouter.get('/', userExtractor, async (req, res, next) => {
     const {userId} = req;
-    const cvs = await Curriculum.find({user : userId}).populate(
-        'user', {
-            email: 1
-        }
-    );
+    const populateUser = {path: 'user', select: 'email name lastName'};
+    const cvs = await Curriculum.find({user : userId})
+        .populate(populateUser);
     res.status(200).json(cvs);
 });
 
 cvsRouter.get('/:id', userExtractor, (req, res, next) => {
-    // const {userId} = req;
+    const {userId} = req;
     const {id} = req.params;
     Curriculum.findById(id)
     .then(cv => {
@@ -25,6 +23,29 @@ cvsRouter.get('/:id', userExtractor, (req, res, next) => {
         }
     })
     .catch(err => next(err));
+});
+
+
+cvsRouter.get('/:id/populated', userExtractor, async (req, res, next) => {
+    const {userId} = req;
+    const {id} = req.params;
+    try {
+        const populateUser = {path: 'user', select: 'email name lastName'};
+        const cv = await Curriculum.findById(id)
+            .populate(populateUser)
+            .populate('laboralExperiences')
+            .populate('projects')
+            .populate('academicExperiences')
+            .populate('userProfile')
+            .populate('profilePicture');
+        if (cv) {
+            return res.json(cv);
+        } else {
+            res.status(404).end();
+        }
+    } catch (err) {
+        next(err);
+    }
 });
 
 cvsRouter.post('/', userExtractor, async (req, res, next) => {
@@ -63,9 +84,8 @@ cvsRouter.put('/:id', userExtractor, (req, res, next) => {
     const cv = req.body;
     
     const newCV = {
-        name: cv.name,
-        description: cv.description,
-        language: cv.language
+        ...cv,
+        updatedAt: new Date().toISOString()
     };
 
     Curriculum.findByIdAndUpdate(id, newCV, {new: true})
