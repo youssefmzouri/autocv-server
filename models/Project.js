@@ -7,6 +7,10 @@ const projectSchema = new Schema({
     updatedAt: Date,
     isFromGithub: Boolean,
     githubUri: String,
+    stargazers_count: Number,
+    forks: Number,
+    watchers: Number,
+    private: Boolean,
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'

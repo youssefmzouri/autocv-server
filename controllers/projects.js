@@ -28,31 +28,36 @@ projectsRouter.get('/:id', userExtractor, (req, res, next) => {
 });
 
 projectsRouter.post('/', userExtractor, async (req, res, next) => {
-    const {name, description} = req.body;
-    const isFromGithub = req.body.isFromGithub || false;
-    const githubUri = req.body.githubUri || '';
+    const project = req.body;
+    project.isFromGithub = req.body.isFromGithub || false;
+    project.githubUri = req.body.githubUri || '';
 
-    if(!name || !description) {
+    if (project.isFromGithub) {
+        project.description = project.description ? project.description : project.full_name;
+    }
+
+    if(!project.name || !project.description) {
         return res.status(400).json({
             error: '"name" field and "description" field are requireds'
         });
     }
 
+    if (project.id) {
+        delete project.id;
+    }
+
     const {userId} = req;
     const user = await User.findById(userId);
 
-    const project = new Project({
-        name, 
-        description,
+    const newProject = new Project({
+        ...project,
         user: user._id,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        isFromGithub,
-        githubUri
     });
 
     try {
-        const savedProject = await project.save();
+        const savedProject = await newProject.save();
         user.projects = user.projects.concat(savedProject._id);
         await user.save();
         res.status(201).json(savedProject);
@@ -66,10 +71,7 @@ projectsRouter.put('/:id', userExtractor, (req, res, next) => {
     const project = req.body;
     
     const newProject = {
-        name: project.name,
-        description: project.description,
-        isFromGithub: project.isFromGithub,
-        githubUri: project.githubUri,
+        ...project,
         updatedAt: new Date().toISOString()
     };
 
