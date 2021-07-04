@@ -4,9 +4,11 @@ const userProfileSchema = new Schema({
     contactEmail: String,
     contactPhone: String,
     githubUser: String,
-    linkedinUSer: String,
+    linkedinUser: String,
     web: String,
     city: String,
+    createdAt: Date,
+    updatedAt: Date,
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'

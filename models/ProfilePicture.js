@@ -3,14 +3,11 @@ const { Schema, model  } = require("mongoose");
 const profilePictureSchema = new Schema({
     ref: String,
     image: String,
+    createdAt: Date,
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'
-    },
-    cvs: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Curriculum'
-    }]
+    }
 });
 
 /**

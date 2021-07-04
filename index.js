@@ -17,12 +17,13 @@ const {notFound, handleErrors} = require('./middleware');
 const {cvsRouter, usersRouter,
     loginRouter, projectsRouter, 
     laboralExperiencesRouter, githubRouter,
-    academicExperienceRouter,
+    academicExperienceRouter, userProfileRouter,
+    profilePictureRouter
 } = require('./controllers/');
 
 // use middlewares
 app.use(cors());
-app.use(express.json());
+app.use(express.json({limit: '5mb'}));
 app.use('/images', express.static('images'));
 
 Sentry.init({
@@ -59,6 +60,8 @@ app.use('/api/curriculums', cvsRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/laboralexperiences', laboralExperiencesRouter);
 app.use('/api/academicexperiences', academicExperienceRouter);
+app.use('/api/userprofile', userProfileRouter);
+app.use('/api/profilePicture', profilePictureRouter);
 
 // Third-Party APIS Routes
 app.use('/api/github',githubRouter);
