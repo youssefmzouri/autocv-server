@@ -1,7 +1,9 @@
 const cvsRouter = require('express').Router();
 const {User, Curriculum} = require('../models');
 const {userExtractor} = require('../middleware');
+const fs = require('fs');
 const jwt = require('jsonwebtoken');
+const pdfManager = require('../services/pdfManager');
 
 cvsRouter.get('/', userExtractor, async (req, res, next) => {
     const {userId} = req;
@@ -40,6 +42,37 @@ cvsRouter.get('/:id/populated', userExtractor, async (req, res, next) => {
             .populate('profilePicture');
         if (cv) {
             return res.json(cv);
+        } else {
+            res.status(404).end();
+        }
+    } catch (err) {
+        next(err);
+    }
+});
+
+
+cvsRouter.get('/:id/export/pdf', userExtractor, async (req, res, next) => {
+    const {userId} = req;
+    const {id} = req.params;
+    try {
+        const populateUser = {path: 'user', select: 'email name lastName'};
+        const cv = await Curriculum.findById(id)
+            .populate(populateUser)
+            .populate('laboralExperiences')
+            .populate('projects')
+            .populate('academicExperiences')
+            .populate('userProfile')
+            .populate('profilePicture');
+        if (cv) {
+            pdfManager.createPDF(cv, (path, fileResult) => {
+                const file = fs.createReadStream(path);
+                const stat = fs.statSync(path);
+                
+                res.setHeader('Content-Length', stat.size);
+                res.setHeader('Content-Type', 'application/pdf');
+                res.setHeader('Content-Disposition', 'attachment; filename=quote.pdf');
+                file.pipe(res);
+            });
         } else {
             res.status(404).end();
         }

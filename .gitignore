@@ -105,3 +105,4 @@ dist
 
 # JSON env file
 environment/env.json
+output/
